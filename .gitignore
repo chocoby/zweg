@@ -18,8 +18,9 @@
 go.work
 
 # Build output
-/zweg
-/dist/
+/bin/
+coverage.out
+coverage.html
 
 # IDE
 .vscode/
