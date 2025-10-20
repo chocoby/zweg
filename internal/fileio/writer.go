@@ -34,7 +34,11 @@ func (w *GPXWriter) Write(filename string, g *gpx.GPX) error {
 	if err != nil {
 		return fmt.Errorf("failed to create file %q: %w", filename, err)
 	}
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			err = fmt.Errorf("failed to close file: %w", closeErr)
+		}
+	}()
 
 	return w.Encode(file, g)
 }

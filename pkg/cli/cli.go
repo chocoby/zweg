@@ -85,7 +85,9 @@ func (c *CLI) Run(inputFile, outputFile, trackName string) error {
 
 	// Print success message
 	if c.stdout != nil {
-		fmt.Fprintf(c.stdout, "Successfully converted %d points to GPX: %s\n", len(points), outputFile)
+		if _, err := fmt.Fprintf(c.stdout, "Successfully converted %d points to GPX: %s\n", len(points), outputFile); err != nil {
+			return fmt.Errorf("failed to write output message: %w", err)
+		}
 	}
 
 	return nil

@@ -28,7 +28,11 @@ func (r *JSONReader) Read(filename string) ([]models.Point, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file %q: %w", filename, err)
 	}
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			err = fmt.Errorf("failed to close file: %w", closeErr)
+		}
+	}()
 
 	return r.Decode(file)
 }
