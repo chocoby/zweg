@@ -101,6 +101,44 @@ make coverage
 - `make check` - Run fmt, vet, and test
 - `make help` - Show help message
 
+## ZweiteGPS JSON Format Specification
+
+The input JSON file should be an array of GPS trackpoints with the following fields:
+
+| Field | Type   | Description                                      | Example      |
+|-------|--------|--------------------------------------------------|--------------|
+| `tm`  | number | Unix timestamp (seconds since epoch)             | 1609459200   |
+| `la`  | number | Latitude in decimal degrees                      | 35.658581    |
+| `lo`  | number | Longitude in decimal degrees                     | 139.745438   |
+| `al`  | string | Altitude in meters                               | "150.0"      |
+| `sp`  | string | Speed in meters per second                       | "1.0"        |
+| `co`  | number | Course/bearing in degrees (0-360, -1 if unknown) | 90           |
+| `th`  | number | True heading in degrees (0-360)                  | 85           |
+| `he`  | number | Heading in degrees (0-360)                       | 88           |
+| `ds`  | string | Distance in meters                               | "0.0"        |
+| `ms`  | number | Milliseconds (optional)                          | 0            |
+| `ow`  | string | Owner/device information (optional)              | "iPhone ..." |
+
+### Example
+
+```json
+[
+  {
+    "tm": 1609459200,
+    "lo": 139.745438,
+    "la": 35.658581,
+    "al": "150.0",
+    "sp": "1.0",
+    "co": 90,
+    "th": 85,
+    "he": 88,
+    "ds": "0.0",
+    "ms": 0,
+    "ow": "iPhone [iPhone15,2 v18.0.1, ZweiteGPS, v48]"
+  }
+]
+```
+
 ## Project Structure
 
 ```
