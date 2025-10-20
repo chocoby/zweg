@@ -8,6 +8,12 @@ ZweiteGPS to GPX Converter - A command-line tool to convert ZweiteGPS JSON forma
 
 ## Installation
 
+### Download pre-built binaries
+
+Download the latest release for your platform from the [Releases](https://github.com/chocoby/zweg/releases) page.
+
+Extract the archive and move the binary to a directory in your PATH.
+
 ### From source
 
 ```bash
