@@ -5,9 +5,6 @@ ZweiteGPS to GPX Converter - A command-line tool to convert ZweiteGPS JSON forma
 ## Features
 
 - Convert ZweiteGPS JSON data to GPX 1.1 format
-- Clean, testable architecture with separation of concerns
-- Comprehensive test coverage
-- Easy to build and install
 
 ## Installation
 
