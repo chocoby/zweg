@@ -11,7 +11,7 @@ import (
 	"github.com/chocoby/zweg/internal/models"
 )
 
-func TestJSONReader_ReadFrom(t *testing.T) {
+func TestJSONReader_Decode(t *testing.T) {
 	tests := []struct {
 		name      string
 		input     string
@@ -71,26 +71,26 @@ func TestJSONReader_ReadFrom(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			reader := NewJSONReader()
 			buf := strings.NewReader(tt.input)
-			points, err := reader.ReadFrom(buf)
+			points, err := reader.Decode(buf)
 
 			if tt.wantErr {
 				if err == nil {
-					t.Errorf("ReadFrom() error = nil, wantErr %v", tt.wantErr)
+					t.Errorf("Decode() error = nil, wantErr %v", tt.wantErr)
 					return
 				}
 				if tt.errSubstr != "" && !strings.Contains(err.Error(), tt.errSubstr) {
-					t.Errorf("ReadFrom() error = %v, want substring %q", err, tt.errSubstr)
+					t.Errorf("Decode() error = %v, want substring %q", err, tt.errSubstr)
 				}
 				return
 			}
 
 			if err != nil {
-				t.Errorf("ReadFrom() unexpected error = %v", err)
+				t.Errorf("Decode() unexpected error = %v", err)
 				return
 			}
 
 			if len(points) != tt.wantLen {
-				t.Errorf("ReadFrom() points length = %d, want %d", len(points), tt.wantLen)
+				t.Errorf("Decode() points length = %d, want %d", len(points), tt.wantLen)
 			}
 		})
 	}
@@ -129,7 +129,7 @@ func TestJSONReader_Read(t *testing.T) {
 	})
 }
 
-func TestGPXWriter_WriteTo(t *testing.T) {
+func TestGPXWriter_Encode(t *testing.T) {
 	// Create a simple GPX structure for testing
 	points := []models.Point{
 		{
@@ -150,17 +150,17 @@ func TestGPXWriter_WriteTo(t *testing.T) {
 		writer := NewGPXWriter("  ")
 		var buf bytes.Buffer
 
-		err := writer.WriteTo(&buf, gpxData)
+		err := writer.Encode(&buf, gpxData)
 		if err != nil {
-			t.Errorf("WriteTo() unexpected error = %v", err)
+			t.Errorf("Encode() unexpected error = %v", err)
 		}
 
 		output := buf.String()
 		if !strings.Contains(output, "<gpx") {
-			t.Error("WriteTo() output missing GPX root element")
+			t.Error("Encode() output missing GPX root element")
 		}
 		if !strings.Contains(output, "Test Track") {
-			t.Error("WriteTo() output missing track name")
+			t.Error("Encode() output missing track name")
 		}
 	})
 
@@ -168,14 +168,14 @@ func TestGPXWriter_WriteTo(t *testing.T) {
 		writer := NewGPXWriter("\t")
 		var buf bytes.Buffer
 
-		err := writer.WriteTo(&buf, gpxData)
+		err := writer.Encode(&buf, gpxData)
 		if err != nil {
-			t.Errorf("WriteTo() unexpected error = %v", err)
+			t.Errorf("Encode() unexpected error = %v", err)
 		}
 
 		output := buf.String()
 		if len(output) == 0 {
-			t.Error("WriteTo() output is empty")
+			t.Error("Encode() output is empty")
 		}
 	})
 
@@ -183,13 +183,13 @@ func TestGPXWriter_WriteTo(t *testing.T) {
 		writer := NewGPXWriter("")
 		var buf bytes.Buffer
 
-		err := writer.WriteTo(&buf, gpxData)
+		err := writer.Encode(&buf, gpxData)
 		if err != nil {
-			t.Errorf("WriteTo() unexpected error = %v", err)
+			t.Errorf("Encode() unexpected error = %v", err)
 		}
 
 		if buf.Len() == 0 {
-			t.Error("WriteTo() output is empty")
+			t.Error("Encode() output is empty")
 		}
 	})
 }

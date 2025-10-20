@@ -30,11 +30,11 @@ func (r *JSONReader) Read(filename string) ([]models.Point, error) {
 	}
 	defer file.Close()
 
-	return r.ReadFrom(file)
+	return r.Decode(file)
 }
 
-// ReadFrom reads and parses ZweiteGPS JSON data from an io.Reader
-func (r *JSONReader) ReadFrom(reader io.Reader) ([]models.Point, error) {
+// Decode reads and parses ZweiteGPS JSON data from an io.Reader
+func (r *JSONReader) Decode(reader io.Reader) ([]models.Point, error) {
 	var points []models.Point
 	decoder := json.NewDecoder(reader)
 	if err := decoder.Decode(&points); err != nil {

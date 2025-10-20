@@ -36,11 +36,11 @@ func (w *GPXWriter) Write(filename string, g *gpx.GPX) error {
 	}
 	defer file.Close()
 
-	return w.WriteTo(file, g)
+	return w.Encode(file, g)
 }
 
-// WriteTo writes GPX data to an io.Writer
-func (w *GPXWriter) WriteTo(writer io.Writer, g *gpx.GPX) error {
+// Encode writes GPX data to an io.Writer
+func (w *GPXWriter) Encode(writer io.Writer, g *gpx.GPX) error {
 	if err := g.WriteIndent(writer, "", w.indent); err != nil {
 		return fmt.Errorf("failed to write GPX: %w", err)
 	}
