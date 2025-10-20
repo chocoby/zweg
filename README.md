@@ -28,7 +28,7 @@ go install github.com/chocoby/zweg/cmd/zweg@latest
 ## Usage
 
 ```bash
-zweg [--track-name <name>] <input.json> <output.gpx>
+zweg [--track-name <name>] <input.json> [output.gpx]
 ```
 
 ### Options
@@ -38,16 +38,22 @@ zweg [--track-name <name>] <input.json> <output.gpx>
 ### Arguments
 
 - `input.json`: Path to the input ZweiteGPS JSON file
-- `output.gpx`: Path to the output GPX file
+- `output.gpx`: Path to the output GPX file (optional, defaults to `input.json.gpx`)
 
 ### Examples
 
 ```bash
-# With custom track name
-zweg --track-name "My Morning Run" data.json output.gpx
+# Auto-generate output filename (data.json -> data.json.gpx)
+zweg data.json
 
-# Using default track name
+# With custom output filename
 zweg data.json output.gpx
+
+# With custom track name and auto-generated output
+zweg --track-name "My Morning Run" data.json
+
+# With custom track name and custom output
+zweg --track-name "My Morning Run" data.json output.gpx
 
 # Show help
 zweg --help
