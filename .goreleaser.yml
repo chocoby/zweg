@@ -1,0 +1,61 @@
+# .goreleaser.yml
+# GoReleaser v2 configuration for cross-platform binary builds
+version: 2
+
+project_name: zweg
+
+# Build configuration
+builds:
+  - id: zweg
+    # Entry point for the application
+    main: ./cmd/zweg/
+    # Binary name
+    binary: zweg
+    # Target operating systems
+    goos:
+      - linux
+      - windows
+      - darwin
+    # Target architectures
+    goarch:
+      - amd64
+      - arm64
+    # Build flags - inject version information
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+    # Disable CGO for better cross-compilation compatibility
+    env:
+      - CGO_ENABLED=0
+
+# Archive configuration
+archives:
+  - id: zweg
+    # Archive name template
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    # Include additional files
+    files:
+      - README.md
+      - LICENSE
+    # Format specification (v2 syntax)
+    formats:
+      - tar.gz
+      - zip
+
+# Checksum file generation
+checksum:
+  name_template: "checksums.txt"
+
+# Snapshot (development) release configuration
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+# Changelog generation from git commits
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "Merge pull request"
+      - "Merge branch"

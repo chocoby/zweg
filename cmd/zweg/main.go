@@ -12,6 +12,13 @@ const (
 	exitFailure = 1
 )
 
+var (
+	// Version information - set via ldflags during build
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -22,6 +29,7 @@ func main() {
 func run() error {
 	// Define flags
 	trackName := flag.String("track-name", "Track", "Name for the GPS track")
+	versionFlag := flag.Bool("version", false, "Show version information")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [--track-name <name>] <input.json> [output.gpx]\n\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "Convert ZweiteGPS JSON format to GPX format.\n\n")
@@ -33,6 +41,14 @@ func run() error {
 	}
 
 	flag.Parse()
+
+	// Show version information if requested
+	if *versionFlag {
+		fmt.Printf("zweg version %s\n", version)
+		fmt.Printf("  commit: %s\n", commit)
+		fmt.Printf("  built:  %s\n", date)
+		return nil
+	}
 
 	// Check for required positional arguments
 	nArgs := flag.NArg()
