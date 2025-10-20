@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -8,8 +9,7 @@ import (
 )
 
 const (
-	usageMessage = "Usage: zweg <input.json> <output.gpx> [track_name]"
-	exitFailure  = 1
+	exitFailure = 1
 )
 
 func main() {
@@ -20,17 +20,28 @@ func main() {
 }
 
 func run() error {
-	if len(os.Args) < 3 {
-		fmt.Fprintln(os.Stderr, usageMessage)
-		return fmt.Errorf("insufficient arguments")
+	// Define flags
+	trackName := flag.String("track-name", "Track", "Name for the GPS track")
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s [--track-name <name>] <input.json> <output.gpx>\n\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Convert ZweiteGPS JSON format to GPX format.\n\n")
+		fmt.Fprintf(os.Stderr, "Options:\n")
+		flag.PrintDefaults()
+		fmt.Fprintf(os.Stderr, "\nArguments:\n")
+		fmt.Fprintf(os.Stderr, "  input.json   Input file in ZweiteGPS JSON format\n")
+		fmt.Fprintf(os.Stderr, "  output.gpx   Output file in GPX format\n")
 	}
 
-	inputFile := os.Args[1]
-	outputFile := os.Args[2]
-	trackName := "Track"
-	if len(os.Args) >= 4 {
-		trackName = os.Args[3]
+	flag.Parse()
+
+	// Check for required positional arguments
+	if flag.NArg() != 2 {
+		flag.Usage()
+		return fmt.Errorf("exactly 2 arguments required (input and output files)")
 	}
+
+	inputFile := flag.Arg(0)
+	outputFile := flag.Arg(1)
 
 	// Create CLI instance
 	c := cli.New(&cli.Config{
@@ -39,5 +50,5 @@ func run() error {
 	})
 
 	// Run conversion
-	return c.Run(inputFile, outputFile, trackName)
+	return c.Run(inputFile, outputFile, *trackName)
 }
