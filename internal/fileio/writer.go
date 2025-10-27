@@ -45,6 +45,12 @@ func (w *GPXWriter) Write(filename string, g *gpx.GPX) error {
 
 // Encode writes GPX data to an io.Writer
 func (w *GPXWriter) Encode(writer io.Writer, g *gpx.GPX) error {
+	// Write XML declaration manually since go-gpx's WriteIndent does not include it.
+	// This ensures better compatibility with XML parsers and GPX readers.
+	if _, err := writer.Write([]byte("<?xml version=\"1.0\"?>\n")); err != nil {
+		return fmt.Errorf("failed to write XML declaration: %w", err)
+	}
+
 	if err := g.WriteIndent(writer, "", w.indent); err != nil {
 		return fmt.Errorf("failed to write GPX: %w", err)
 	}

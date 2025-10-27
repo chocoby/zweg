@@ -192,6 +192,32 @@ func TestGPXWriter_Encode(t *testing.T) {
 			t.Error("Encode() output is empty")
 		}
 	})
+
+	t.Run("output includes XML declaration", func(t *testing.T) {
+		writer := NewGPXWriter("  ")
+		var buf bytes.Buffer
+
+		err := writer.Encode(&buf, gpxData)
+		if err != nil {
+			t.Errorf("Encode() unexpected error = %v", err)
+		}
+
+		output := buf.String()
+		expectedDeclaration := "<?xml version=\"1.0\"?>"
+
+		if !strings.HasPrefix(output, expectedDeclaration) {
+			t.Errorf("Encode() output does not start with XML declaration, got: %s", output[:50])
+		}
+
+		// Verify the declaration is on its own line
+		lines := strings.Split(output, "\n")
+		if len(lines) < 2 {
+			t.Error("Encode() output should have XML declaration on separate line")
+		}
+		if lines[0] != expectedDeclaration {
+			t.Errorf("Encode() first line = %q, want %q", lines[0], expectedDeclaration)
+		}
+	})
 }
 
 func TestGPXWriter_Write(t *testing.T) {
@@ -233,6 +259,11 @@ func TestGPXWriter_Write(t *testing.T) {
 
 		if !strings.Contains(string(content), "<gpx") {
 			t.Error("Write() output missing GPX root element")
+		}
+
+		// Verify XML declaration is present
+		if !strings.HasPrefix(string(content), "<?xml version=\"1.0\"?>") {
+			t.Error("Write() output missing XML declaration at start")
 		}
 	})
 
