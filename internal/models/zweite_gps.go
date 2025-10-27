@@ -21,9 +21,9 @@ type Point struct {
 	Ow string  `json:"ow,omitempty"` // Owner/device info
 }
 
-// Timestamp returns the time.Time representation of the Unix timestamp
+// Timestamp returns the time.Time representation of the Unix timestamp in UTC
 func (p *Point) Timestamp() time.Time {
-	return time.Unix(p.Tm, 0)
+	return time.Unix(p.Tm, 0).UTC()
 }
 
 // Altitude returns the altitude as a float64 value
