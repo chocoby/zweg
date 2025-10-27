@@ -29,13 +29,13 @@ func NewGPXWriter(indent string) *GPXWriter {
 }
 
 // Write writes GPX data to a file.
-func (w *GPXWriter) Write(filename string, g *gpx.GPX) error {
+func (w *GPXWriter) Write(filename string, g *gpx.GPX) (err error) {
 	file, err := os.Create(filename)
 	if err != nil {
 		return fmt.Errorf("failed to create file %q: %w", filename, err)
 	}
 	defer func() {
-		if closeErr := file.Close(); closeErr != nil {
+		if closeErr := file.Close(); closeErr != nil && err == nil {
 			err = fmt.Errorf("failed to close file: %w", closeErr)
 		}
 	}()

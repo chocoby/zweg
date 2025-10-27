@@ -28,9 +28,11 @@ func main() {
 
 func run() error {
 	trackName := flag.String("track-name", "Track", "Name for the GPS track")
+	outputDir := flag.String("d", "", "Output directory (ignored if output file is specified)")
+	flag.StringVar(outputDir, "output-dir", "", "Output directory (ignored if output file is specified)")
 	versionFlag := flag.Bool("version", false, "Show version information")
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: %s [--track-name <name>] <input.json> [output.gpx]\n\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s [options] <input.json> [output.gpx]\n\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "Convert ZweiteGPS JSON format to GPX format.\n\n")
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		flag.PrintDefaults()
@@ -65,5 +67,5 @@ func run() error {
 		Stderr: os.Stderr,
 	})
 
-	return c.Run(inputFile, outputFile, *trackName)
+	return c.Run(inputFile, outputFile, *outputDir, *trackName)
 }

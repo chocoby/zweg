@@ -31,12 +31,13 @@ go install github.com/chocoby/zweg/cmd/zweg@latest
 ## Usage
 
 ```bash
-zweg [--track-name <name>] <input.json> [output.gpx]
+zweg [options] <input.json> [output.gpx]
 ```
 
 ### Options
 
 - `--track-name <name>`: Name for the GPS track (default: "Track")
+- `-d, --output-dir <directory>`: Output directory for the GPX file (ignored if output file is specified)
 
 ### Arguments
 
@@ -46,17 +47,30 @@ zweg [--track-name <name>] <input.json> [output.gpx]
 ### Examples
 
 ```bash
-# Auto-generate output filename (data.json -> data.json.gpx)
+# Auto-generate output filename based on track start time
+# Output: YYYYMMDD-HHMMSS.gpx (same directory as input file)
 zweg data.json
 
 # With custom output filename
 zweg data.json output.gpx
 
+# With output directory (auto-generate filename in specified directory)
+zweg -d ./gpx-output data.json
+
+# With nested output directory (creates directories automatically)
+zweg -d ./output/2024/october data.json
+
 # With custom track name and auto-generated output
 zweg --track-name "My Morning Run" data.json
 
+# With custom track name and output directory
+zweg --track-name "My Morning Run" -d ./runs data.json
+
 # With custom track name and custom output
 zweg --track-name "My Morning Run" data.json output.gpx
+
+# When both output directory and output file are specified, the output file takes precedence
+zweg -d ./ignored-dir data.json ./actual-output.gpx
 
 # Show help
 zweg --help
