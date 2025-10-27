@@ -27,7 +27,6 @@ func main() {
 }
 
 func run() error {
-	// Define flags
 	trackName := flag.String("track-name", "Track", "Name for the GPS track")
 	versionFlag := flag.Bool("version", false, "Show version information")
 	flag.Usage = func() {
@@ -42,7 +41,6 @@ func run() error {
 
 	flag.Parse()
 
-	// Show version information if requested
 	if *versionFlag {
 		fmt.Printf("zweg version %s\n", version)
 		fmt.Printf("  commit: %s\n", commit)
@@ -50,7 +48,6 @@ func run() error {
 		return nil
 	}
 
-	// Check for required positional arguments
 	nArgs := flag.NArg()
 	if nArgs < 1 || nArgs > 2 {
 		flag.Usage()
@@ -62,16 +59,13 @@ func run() error {
 	if nArgs == 2 {
 		outputFile = flag.Arg(1)
 	} else {
-		// Auto-generate output filename by appending .gpx
 		outputFile = inputFile + ".gpx"
 	}
 
-	// Create CLI instance
 	c := cli.New(&cli.Config{
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
 	})
 
-	// Run conversion
 	return c.Run(inputFile, outputFile, *trackName)
 }

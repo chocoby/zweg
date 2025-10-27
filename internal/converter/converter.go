@@ -53,35 +53,29 @@ func (c *GPXConverter) Convert(points []models.Point, trackName string) (*gpx.GP
 		trackName = "Track"
 	}
 
-	// Create GPX document
 	g := &gpx.GPX{
 		Version: c.config.Version,
 		Creator: c.config.Creator,
 	}
 
-	// Set metadata
 	startTime := points[0].Timestamp()
 	g.Metadata = &gpx.MetadataType{
 		Name: trackName,
 		Time: startTime,
 	}
 
-	// Add waypoints if enabled
 	if c.config.IncludeWaypoint {
 		if err := c.addWaypoints(g, points); err != nil {
 			return nil, fmt.Errorf("failed to add waypoints: %w", err)
 		}
 	}
 
-	// Create track
 	track := &gpx.TrkType{
 		Name: trackName,
 	}
 
-	// Create track segment
 	segment := &gpx.TrkSegType{}
 
-	// Add track points
 	for i, point := range points {
 		alt, err := point.Altitude()
 		if err != nil {
@@ -106,7 +100,6 @@ func (c *GPXConverter) Convert(points []models.Point, trackName string) (*gpx.GP
 
 // addWaypoints adds start and end waypoints to the GPX document
 func (c *GPXConverter) addWaypoints(g *gpx.GPX, points []models.Point) error {
-	// Add start waypoint
 	firstPoint := points[0]
 	firstAlt, err := firstPoint.Altitude()
 	if err != nil {
@@ -121,7 +114,6 @@ func (c *GPXConverter) addWaypoints(g *gpx.GPX, points []models.Point) error {
 		Name: "Start",
 	})
 
-	// Add goal waypoint
 	lastPoint := points[len(points)-1]
 	lastAlt, err := lastPoint.Altitude()
 	if err != nil {

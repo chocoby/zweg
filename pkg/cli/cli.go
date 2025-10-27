@@ -55,7 +55,6 @@ func New(config *Config) *CLI {
 
 // Run executes the CLI command
 func (c *CLI) Run(inputFile, outputFile, trackName string) error {
-	// Validate inputs
 	if inputFile == "" {
 		return fmt.Errorf("input file is required")
 	}
@@ -66,24 +65,20 @@ func (c *CLI) Run(inputFile, outputFile, trackName string) error {
 		trackName = "Track"
 	}
 
-	// Read JSON file
 	points, err := c.reader.Read(inputFile)
 	if err != nil {
 		return fmt.Errorf("failed to read input file: %w", err)
 	}
 
-	// Convert to GPX
 	gpxData, err := c.converter.Convert(points, trackName)
 	if err != nil {
 		return fmt.Errorf("failed to convert data: %w", err)
 	}
 
-	// Write GPX file
 	if err := c.writer.Write(outputFile, gpxData); err != nil {
 		return fmt.Errorf("failed to write output file: %w", err)
 	}
 
-	// Print success message
 	if c.stdout != nil {
 		if _, err := fmt.Fprintf(c.stdout, "Successfully converted %d points to GPX: %s\n", len(points), outputFile); err != nil {
 			return fmt.Errorf("failed to write output message: %w", err)
