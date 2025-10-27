@@ -41,7 +41,7 @@ zweg [--track-name <name>] <input.json> [output.gpx]
 ### Arguments
 
 - `input.json`: Path to the input ZweiteGPS JSON file
-- `output.gpx`: Path to the output GPX file (optional, defaults to `input.json.gpx`)
+- `output.gpx`: Path to the output GPX file (optional, defaults to YYYYMMDD-HHMMSS.gpx based on track start time)
 
 ### Examples
 

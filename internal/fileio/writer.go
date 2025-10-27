@@ -8,17 +8,17 @@ import (
 	"github.com/twpayne/go-gpx"
 )
 
-// Writer defines the interface for writing GPX data
+// Writer defines the interface for writing GPX data.
 type Writer interface {
 	Write(filename string, g *gpx.GPX) error
 }
 
-// GPXWriter implements Writer for GPX files
+// GPXWriter implements Writer for GPX files.
 type GPXWriter struct {
 	indent string
 }
 
-// NewGPXWriter creates a new GPXWriter
+// NewGPXWriter creates a new GPXWriter.
 func NewGPXWriter(indent string) *GPXWriter {
 	if indent == "" {
 		indent = "  "
@@ -28,7 +28,7 @@ func NewGPXWriter(indent string) *GPXWriter {
 	}
 }
 
-// Write writes GPX data to a file
+// Write writes GPX data to a file.
 func (w *GPXWriter) Write(filename string, g *gpx.GPX) error {
 	file, err := os.Create(filename)
 	if err != nil {
@@ -43,10 +43,9 @@ func (w *GPXWriter) Write(filename string, g *gpx.GPX) error {
 	return w.Encode(file, g)
 }
 
-// Encode writes GPX data to an io.Writer
+// Encode writes GPX data to an io.Writer.
 func (w *GPXWriter) Encode(writer io.Writer, g *gpx.GPX) error {
-	// Write XML declaration manually since go-gpx's WriteIndent does not include it.
-	// This ensures better compatibility with XML parsers and GPX readers.
+	// Write XML declaration manually for better compatibility with XML parsers.
 	if _, err := writer.Write([]byte("<?xml version=\"1.0\"?>\n")); err != nil {
 		return fmt.Errorf("failed to write XML declaration: %w", err)
 	}

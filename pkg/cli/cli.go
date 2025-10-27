@@ -3,12 +3,14 @@ package cli
 import (
 	"fmt"
 	"io"
+	"path/filepath"
 
 	"github.com/chocoby/zweg/internal/converter"
 	"github.com/chocoby/zweg/internal/fileio"
+	"github.com/chocoby/zweg/internal/models"
 )
 
-// CLI represents the command-line interface
+// CLI represents the command-line interface.
 type CLI struct {
 	reader    fileio.Reader
 	writer    fileio.Writer
@@ -17,7 +19,7 @@ type CLI struct {
 	stderr    io.Writer
 }
 
-// Config holds CLI configuration
+// Config holds CLI configuration.
 type Config struct {
 	Reader    fileio.Reader
 	Writer    fileio.Writer
@@ -26,7 +28,7 @@ type Config struct {
 	Stderr    io.Writer
 }
 
-// New creates a new CLI instance
+// New creates a new CLI instance.
 func New(config *Config) *CLI {
 	if config == nil {
 		config = &Config{}
@@ -53,21 +55,39 @@ func New(config *Config) *CLI {
 	}
 }
 
-// Run executes the CLI command
+// generateOutputFilename generates output filename based on GPS points timestamp.
+// Returns YYYYMMDD-HHMMSS.gpx format in the same directory as the input file.
+func (c *CLI) generateOutputFilename(inputFile string, points []models.Point) string {
+	if len(points) == 0 {
+		return inputFile + ".gpx"
+	}
+
+	firstPoint := points[0]
+	timestamp := firstPoint.LocalTimestamp()
+	baseName := timestamp.Format("20060102-150405") + ".gpx"
+
+	dir := filepath.Dir(inputFile)
+	return filepath.Join(dir, baseName)
+}
+
+// Run executes the CLI command.
+// If outputFile is empty, it will be auto-generated based on the track start time.
 func (c *CLI) Run(inputFile, outputFile, trackName string) error {
 	if inputFile == "" {
 		return fmt.Errorf("input file is required")
-	}
-	if outputFile == "" {
-		return fmt.Errorf("output file is required")
-	}
-	if trackName == "" {
-		trackName = "Track"
 	}
 
 	points, err := c.reader.Read(inputFile)
 	if err != nil {
 		return fmt.Errorf("failed to read input file: %w", err)
+	}
+
+	if outputFile == "" {
+		outputFile = c.generateOutputFilename(inputFile, points)
+	}
+
+	if trackName == "" {
+		trackName = "Track"
 	}
 
 	gpxData, err := c.converter.Convert(points, trackName)

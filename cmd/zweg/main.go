@@ -36,7 +36,7 @@ func run() error {
 		flag.PrintDefaults()
 		fmt.Fprintf(os.Stderr, "\nArguments:\n")
 		fmt.Fprintf(os.Stderr, "  input.json    Input file in ZweiteGPS JSON format\n")
-		fmt.Fprintf(os.Stderr, "  output.gpx    Output file in GPX format (optional, defaults to input.json.gpx)\n")
+		fmt.Fprintf(os.Stderr, "  output.gpx    Output file in GPX format (optional, defaults to YYYYMMDD-HHMMSS.gpx based on track start time)\n")
 	}
 
 	flag.Parse()
@@ -58,8 +58,6 @@ func run() error {
 	outputFile := ""
 	if nArgs == 2 {
 		outputFile = flag.Arg(1)
-	} else {
-		outputFile = inputFile + ".gpx"
 	}
 
 	c := cli.New(&cli.Config{

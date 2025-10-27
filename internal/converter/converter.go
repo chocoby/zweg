@@ -7,19 +7,19 @@ import (
 	"github.com/twpayne/go-gpx"
 )
 
-// Converter defines the interface for converting GPS data to GPX format
+// Converter defines the interface for converting GPS data to GPX format.
 type Converter interface {
 	Convert(points []models.Point, trackName string) (*gpx.GPX, error)
 }
 
-// Config holds configuration for GPX conversion
+// Config holds configuration for GPX conversion.
 type Config struct {
 	Version         string
 	Creator         string
 	IncludeWaypoint bool
 }
 
-// DefaultConfig returns the default configuration
+// DefaultConfig returns the default configuration.
 func DefaultConfig() *Config {
 	return &Config{
 		Version:         "1.1",
@@ -28,12 +28,12 @@ func DefaultConfig() *Config {
 	}
 }
 
-// GPXConverter implements the Converter interface
+// GPXConverter implements the Converter interface.
 type GPXConverter struct {
 	config *Config
 }
 
-// New creates a new GPXConverter with the given configuration
+// New creates a new GPXConverter with the given configuration.
 func New(config *Config) *GPXConverter {
 	if config == nil {
 		config = DefaultConfig()
@@ -43,7 +43,7 @@ func New(config *Config) *GPXConverter {
 	}
 }
 
-// Convert converts ZweiteGPS points to GPX format
+// Convert converts ZweiteGPS points to GPX format.
 func (c *GPXConverter) Convert(points []models.Point, trackName string) (*gpx.GPX, error) {
 	if len(points) == 0 {
 		return nil, fmt.Errorf("no data points provided")
@@ -98,7 +98,7 @@ func (c *GPXConverter) Convert(points []models.Point, trackName string) (*gpx.GP
 	return g, nil
 }
 
-// addWaypoints adds start and end waypoints to the GPX document
+// addWaypoints adds start and end waypoints to the GPX document.
 func (c *GPXConverter) addWaypoints(g *gpx.GPX, points []models.Point) error {
 	firstPoint := points[0]
 	firstAlt, err := firstPoint.Altitude()

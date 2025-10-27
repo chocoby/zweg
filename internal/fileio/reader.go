@@ -9,20 +9,20 @@ import (
 	"github.com/chocoby/zweg/internal/models"
 )
 
-// Reader defines the interface for reading GPS data
+// Reader defines the interface for reading GPS data.
 type Reader interface {
 	Read(filename string) ([]models.Point, error)
 }
 
-// JSONReader implements Reader for JSON files
+// JSONReader implements Reader for JSON files.
 type JSONReader struct{}
 
-// NewJSONReader creates a new JSONReader
+// NewJSONReader creates a new JSONReader.
 func NewJSONReader() *JSONReader {
 	return &JSONReader{}
 }
 
-// Read reads and parses ZweiteGPS JSON data from a file
+// Read reads and parses ZweiteGPS JSON data from a file.
 func (r *JSONReader) Read(filename string) ([]models.Point, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -37,7 +37,7 @@ func (r *JSONReader) Read(filename string) ([]models.Point, error) {
 	return r.Decode(file)
 }
 
-// Decode reads and parses ZweiteGPS JSON data from an io.Reader
+// Decode reads and parses ZweiteGPS JSON data from an io.Reader.
 func (r *JSONReader) Decode(reader io.Reader) ([]models.Point, error) {
 	var points []models.Point
 	decoder := json.NewDecoder(reader)

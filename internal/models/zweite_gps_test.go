@@ -39,6 +39,40 @@ func TestPoint_Timestamp(t *testing.T) {
 	}
 }
 
+func TestPoint_LocalTimestamp(t *testing.T) {
+	tests := []struct {
+		name     string
+		tm       int64
+		wantTime time.Time
+	}{
+		{
+			name:     "unix epoch",
+			tm:       0,
+			wantTime: time.Unix(0, 0).Local(),
+		},
+		{
+			name:     "specific timestamp",
+			tm:       1609459200,
+			wantTime: time.Unix(1609459200, 0).Local(),
+		},
+		{
+			name:     "negative timestamp",
+			tm:       -1,
+			wantTime: time.Unix(-1, 0).Local(),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &Point{Tm: tt.tm}
+			got := p.LocalTimestamp()
+			if !got.Equal(tt.wantTime) {
+				t.Errorf("LocalTimestamp() = %v, want %v", got, tt.wantTime)
+			}
+		})
+	}
+}
+
 func TestPoint_Altitude(t *testing.T) {
 	tests := []struct {
 		name    string

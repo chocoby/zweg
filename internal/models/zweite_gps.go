@@ -21,13 +21,17 @@ type Point struct {
 	Ow string  `json:"ow,omitempty"` // Owner/device info
 }
 
-// Timestamp returns the time.Time representation of the Unix timestamp in UTC
+// Timestamp returns the time.Time representation of the Unix timestamp in UTC.
 func (p *Point) Timestamp() time.Time {
 	return time.Unix(p.Tm, 0).UTC()
 }
 
-// Altitude returns the altitude as a float64 value
-// Returns 0 and an error if the altitude string cannot be parsed
+// LocalTimestamp returns the time.Time representation of the Unix timestamp in local timezone.
+func (p *Point) LocalTimestamp() time.Time {
+	return time.Unix(p.Tm, 0).Local()
+}
+
+// Altitude returns the altitude as a float64 value.
 func (p *Point) Altitude() (float64, error) {
 	if p.Al == "" {
 		return 0, nil
@@ -39,8 +43,7 @@ func (p *Point) Altitude() (float64, error) {
 	return alt, nil
 }
 
-// Speed returns the speed as a float64 value
-// Returns 0 and an error if the speed string cannot be parsed
+// Speed returns the speed as a float64 value.
 func (p *Point) Speed() (float64, error) {
 	if p.Sp == "" {
 		return 0, nil
@@ -52,8 +55,7 @@ func (p *Point) Speed() (float64, error) {
 	return speed, nil
 }
 
-// Distance returns the distance as a float64 value
-// Returns 0 and an error if the distance string cannot be parsed
+// Distance returns the distance as a float64 value.
 func (p *Point) Distance() (float64, error) {
 	if p.Ds == "" {
 		return 0, nil
