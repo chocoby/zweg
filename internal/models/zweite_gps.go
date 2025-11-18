@@ -31,6 +31,12 @@ func (p *Point) LocalTimestamp() time.Time {
 	return time.Unix(p.Tm, 0).Local()
 }
 
+// TimestampWithOffset returns the time.Time representation of the Unix timestamp with the specified offset.
+// offsetSeconds is the timezone offset in seconds (e.g., +9 hours = 32400 seconds).
+func (p *Point) TimestampWithOffset(offsetSeconds int) time.Time {
+	return time.Unix(p.Tm, 0).In(time.FixedZone("", offsetSeconds))
+}
+
 // Altitude returns the altitude as a float64 value.
 func (p *Point) Altitude() (float64, error) {
 	if p.Al == "" {

@@ -73,6 +73,56 @@ func TestPoint_LocalTimestamp(t *testing.T) {
 	}
 }
 
+func TestPoint_TimestampWithOffset(t *testing.T) {
+	tests := []struct {
+		name          string
+		tm            int64
+		offsetSeconds int
+		wantTime      time.Time
+	}{
+		{
+			name:          "UTC offset",
+			tm:            1609459200, // 2021-01-01 00:00:00 UTC
+			offsetSeconds: 0,
+			wantTime:      time.Unix(1609459200, 0).In(time.FixedZone("", 0)),
+		},
+		{
+			name:          "JST offset (+09:00)",
+			tm:            1609459200, // 2021-01-01 00:00:00 UTC
+			offsetSeconds: 9 * 3600,
+			wantTime:      time.Unix(1609459200, 0).In(time.FixedZone("", 9*3600)),
+		},
+		{
+			name:          "EST offset (-05:00)",
+			tm:            1609459200, // 2021-01-01 00:00:00 UTC
+			offsetSeconds: -5 * 3600,
+			wantTime:      time.Unix(1609459200, 0).In(time.FixedZone("", -5*3600)),
+		},
+		{
+			name:          "India Standard Time (+05:30)",
+			tm:            1609459200,
+			offsetSeconds: 5*3600 + 30*60,
+			wantTime:      time.Unix(1609459200, 0).In(time.FixedZone("", 5*3600+30*60)),
+		},
+		{
+			name:          "negative timestamp with positive offset",
+			tm:            -1,
+			offsetSeconds: 9 * 3600,
+			wantTime:      time.Unix(-1, 0).In(time.FixedZone("", 9*3600)),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &Point{Tm: tt.tm}
+			got := p.TimestampWithOffset(tt.offsetSeconds)
+			if !got.Equal(tt.wantTime) {
+				t.Errorf("TimestampWithOffset() = %v, want %v", got, tt.wantTime)
+			}
+		})
+	}
+}
+
 func TestPoint_Altitude(t *testing.T) {
 	tests := []struct {
 		name    string

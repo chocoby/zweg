@@ -5,6 +5,9 @@ ZweiteGPS to GPX Converter - A command-line tool to convert ZweiteGPS JSON forma
 ## Features
 
 - Convert ZweiteGPS JSON data to GPX 1.1 format
+- Configurable timezone offset for GPX timestamps
+- Auto-generate output filenames based on track start time
+- Support for custom track names
 
 ## Installation
 
@@ -38,11 +41,13 @@ zweg [options] <input.json> [output.gpx]
 
 - `--track-name <name>`: Name for the GPS track (default: "Track")
 - `-d, --output-dir <directory>`: Output directory for the GPX file (ignored if output file is specified)
+- `--timezone-offset <offset>`: Timezone offset for auto-generated filename in ±HH:MM or ±HHMM format (default: "+00:00" UTC). **Note: This only affects the filename; GPX timestamps are always in UTC per GPX 1.1 specification.**
+- `--version`: Show version information
 
 ### Arguments
 
 - `input.json`: Path to the input ZweiteGPS JSON file
-- `output.gpx`: Path to the output GPX file (optional, defaults to YYYYMMDD-HHMMSS.gpx based on track start time)
+- `output.gpx`: Path to the output GPX file (optional, defaults to YYYYMMDD-HHMMSS.gpx based on track start time in the specified timezone)
 
 ### Examples
 
@@ -72,8 +77,44 @@ zweg --track-name "My Morning Run" data.json output.gpx
 # When both output directory and output file are specified, the output file takes precedence
 zweg -d ./ignored-dir data.json ./actual-output.gpx
 
+# With timezone offset (JST: +09:00)
+# Output filename: 20210101-090000.gpx (reflects the timezone offset)
+# Note: GPX timestamps remain in UTC (per GPX 1.1 spec)
+zweg --timezone-offset +09:00 data.json
+
+# With timezone offset in HHMM format (EST: -05:00)
+# Only affects the filename, GPX content stays in UTC
+zweg --timezone-offset -0500 data.json
+
+# With timezone offset and custom track name
+zweg --timezone-offset +09:00 --track-name "Tokyo Run" data.json
+
+# With timezone offset and output directory
+zweg --timezone-offset +09:00 -d ./gpx-output data.json
+
 # Show help
 zweg --help
+```
+
+## Batch Conversion Examples
+
+### Convert all JSON files in the current directory
+
+```bash
+# Basic batch conversion (auto-generate filenames)
+for f in *.json; do zweg "$f"; done
+
+# With output directory
+for f in *.json; do zweg -d ./gpx "$f"; done
+
+# With JST timezone for filenames
+for f in *.json; do zweg --timezone-offset +09:00 "$f"; done
+
+# With custom track names (using filename without extension)
+for f in *.json; do zweg --track-name "$(basename "$f" .json)" "$f"; done
+
+# With JST timezone and output directory
+for f in *.json; do zweg --timezone-offset +09:00 -d ./gpx "$f"; done
 ```
 
 ## Development
@@ -92,31 +133,64 @@ The binary will be created in `./bin/zweg`
 
 ### Testing
 
-Run all tests:
-
 ```bash
 make test
 ```
 
-Run tests with coverage:
+### Linting
 
 ```bash
-make coverage
+make lint
 ```
 
-### Available Make Targets
+Requires golangci-lint to be installed.
 
-- `make build` - Build the application
-- `make test` - Run all tests
-- `make coverage` - Run tests with coverage report
-- `make bench` - Run benchmarks
-- `make fmt` - Format code
-- `make vet` - Run go vet
-- `make lint` - Run golangci-lint (requires golangci-lint to be installed)
-- `make install` - Install the binary
-- `make clean` - Remove build artifacts
-- `make check` - Run fmt, vet, and test
-- `make help` - Show help message
+## Timezone Offset Support
+
+### GPX Timestamps (Always UTC)
+
+**All timestamps in GPX files are always in UTC (Coordinated Universal Time)**, as required by the GPX 1.1 specification. This ensures maximum compatibility with GPS software like Garmin Connect, Strava, and other applications that expect standard-compliant GPX files.
+
+### Filename Generation (Timezone Offset Support)
+
+The `--timezone-offset` option allows you to specify a timezone for **auto-generated filenames only**. This makes it easier to identify files based on your local time without compromising GPX compatibility.
+
+### Supported Formats
+
+- `±HH:MM` format (e.g., `+09:00`, `-05:00`)
+- `±HHMM` format (e.g., `+0900`, `-0500`)
+
+### Valid Range
+
+- Minimum: `-12:00` (Baker Island Time)
+- Maximum: `+14:00` (Line Islands Time)
+
+### Examples with Different Timezones
+
+Given an input with Unix timestamp `1609459200` (2021-01-01 00:00:00 UTC):
+
+```bash
+# UTC (default)
+zweg data.json
+# Output filename: 20210101-000000.gpx
+# GPX timestamps: 2021-01-01T00:00:00Z (all timestamps in UTC)
+
+# Japan Standard Time (JST: UTC+9) - affects filename only
+zweg --timezone-offset +09:00 data.json
+# Output filename: 20210101-090000.gpx (JST time)
+# GPX timestamps: 2021-01-01T00:00:00Z (still UTC)
+
+# Eastern Standard Time (EST: UTC-5) - affects filename only
+zweg --timezone-offset -05:00 data.json
+# Output filename: 20201231-190000.gpx (EST time)
+# GPX timestamps: 2021-01-01T00:00:00Z (still UTC)
+```
+
+### Why UTC for GPX Files?
+
+- **GPX 1.1 Specification**: The official specification requires UTC timestamps
+- **Interoperability**: Ensures compatibility with all GPS software and devices
+- **Standard Practice**: GPS applications automatically convert UTC to local time based on location data
 
 ## ZweiteGPS JSON Format Specification
 
@@ -154,22 +228,6 @@ The input JSON file should be an array of GPS trackpoints with the following fie
     "ow": "iPhone [iPhone15,2 v18.0.1, ZweiteGPS, v48]"
   }
 ]
-```
-
-## Project Structure
-
-```
-zweg/
-├── cmd/
-│   └── zweg/           # Entry point
-├── internal/
-│   ├── converter/      # GPX conversion logic
-│   ├── models/         # Data models
-│   └── fileio/         # File I/O operations
-├── pkg/
-│   └── cli/            # CLI interface
-├── Makefile            # Build tasks
-└── README.md
 ```
 
 ## License
