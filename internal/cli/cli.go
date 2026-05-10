@@ -95,12 +95,7 @@ func (c *CLI) generateOutputFilename(inputFile string, outputDir string, points 
 	}
 
 	firstPoint := points[0]
-	var timestamp time.Time
-	if timezoneOffset == 0 {
-		timestamp = firstPoint.Timestamp()
-	} else {
-		timestamp = firstPoint.TimestampWithOffset(timezoneOffset)
-	}
+	timestamp := firstPoint.TimestampIn(time.FixedZone("", timezoneOffset))
 	baseName := timestamp.Format("20060102-150405") + ".gpx"
 
 	dir := outputDir
