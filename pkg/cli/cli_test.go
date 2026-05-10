@@ -179,6 +179,89 @@ func TestCLI_Run_ExplicitOutputFilename(t *testing.T) {
 	}
 }
 
+func TestCLI_Run_TrackNameFallbackFromTl(t *testing.T) {
+	tests := []struct {
+		name        string
+		jsonContent string
+		argTrack    string
+		want        string // expected <name> in trk element
+	}{
+		{
+			name: "use tl when track-name is empty",
+			jsonContent: `[
+				{"tm": 1609459200, "lo": 139.7454, "la": 35.6812,
+				 "al": "0", "sp": "0", "co": 0, "th": 0, "he": 0, "ds": "0",
+				 "tl": "Tokyo Run"}
+			]`,
+			argTrack: "",
+			want:     "<name>Tokyo Run</name>",
+		},
+		{
+			name: "explicit track-name overrides tl",
+			jsonContent: `[
+				{"tm": 1609459200, "lo": 139.7454, "la": 35.6812,
+				 "al": "0", "sp": "0", "co": 0, "th": 0, "he": 0, "ds": "0",
+				 "tl": "Tokyo Run"}
+			]`,
+			argTrack: "Custom",
+			want:     "<name>Custom</name>",
+		},
+		{
+			name: "fallback to means name when tl absent and ms present",
+			jsonContent: `[
+				{"tm": 1609459200, "lo": 139.7454, "la": 35.6812,
+				 "al": "0", "sp": "0", "co": 0, "th": 0, "he": 0, "ds": "0",
+				 "ms": 2}
+			]`,
+			argTrack: "",
+			want:     "<name>Bicycle</name>",
+		},
+		{
+			name: "tl wins over means name",
+			jsonContent: `[
+				{"tm": 1609459200, "lo": 139.7454, "la": 35.6812,
+				 "al": "0", "sp": "0", "co": 0, "th": 0, "he": 0, "ds": "0",
+				 "tl": "Tokyo Run", "ms": 4}
+			]`,
+			argTrack: "",
+			want:     "<name>Tokyo Run</name>",
+		},
+		{
+			name: "fallback to Track when tl and ms both absent",
+			jsonContent: `[
+				{"tm": 1609459200, "lo": 139.7454, "la": 35.6812,
+				 "al": "0", "sp": "0", "co": 0, "th": 0, "he": 0, "ds": "0"}
+			]`,
+			argTrack: "",
+			want:     "<name>Track</name>",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			inputPath := filepath.Join(tmpDir, "test.json")
+			if err := os.WriteFile(inputPath, []byte(tt.jsonContent), 0644); err != nil {
+				t.Fatalf("write input: %v", err)
+			}
+			outPath := filepath.Join(tmpDir, "out.gpx")
+
+			cli := New(nil)
+			if err := cli.Run(inputPath, outPath, "", tt.argTrack, 0); err != nil {
+				t.Fatalf("Run: %v", err)
+			}
+
+			data, err := os.ReadFile(outPath)
+			if err != nil {
+				t.Fatalf("read output: %v", err)
+			}
+			if !strings.Contains(string(data), tt.want) {
+				t.Errorf("output missing %q\n--- output ---\n%s", tt.want, string(data))
+			}
+		})
+	}
+}
+
 func TestCLI_Run_NonExistentFile(t *testing.T) {
 	cli := New(nil)
 	inputFile := "/nonexistent/file/that/does/not/exist.json"
@@ -628,6 +711,9 @@ func TestCLI_Run_PathTraversalPrevention(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tmpDir := t.TempDir()
+			// Run with tmpDir as cwd so relative outputDir values (e.g. "safe-output")
+			// resolve inside the temp dir instead of polluting the source tree.
+			t.Chdir(tmpDir)
 
 			jsonContent := `[
 				{

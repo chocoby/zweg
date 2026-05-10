@@ -210,6 +210,66 @@ func TestGPXConverter_Convert_WithConfig(t *testing.T) {
 	})
 }
 
+func TestGPXConverter_Convert_AccuracyFields(t *testing.T) {
+	points := []models.Point{
+		{Tm: 1609459200, Lo: 139.7671, La: 35.6812, Al: "10.5", Ha: 5.0, Va: 3.0},
+		{Tm: 1609459260, Lo: 139.7672, La: 35.6813, Al: "11.0"}, // no accuracy
+	}
+
+	g, err := New(nil).Convert(points, "Acc Track")
+	if err != nil {
+		t.Fatalf("Convert: %v", err)
+	}
+
+	trkPts := g.Trk[0].TrkSeg[0].TrkPt
+	if got := trkPts[0].HDOP; got != 5.0 {
+		t.Errorf("trkpt[0].HDOP = %v, want 5.0", got)
+	}
+	if got := trkPts[0].VDOP; got != 3.0 {
+		t.Errorf("trkpt[0].VDOP = %v, want 3.0", got)
+	}
+	if got := trkPts[1].HDOP; got != 0 {
+		t.Errorf("trkpt[1].HDOP = %v, want 0 (omitted)", got)
+	}
+	if got := trkPts[1].VDOP; got != 0 {
+		t.Errorf("trkpt[1].VDOP = %v, want 0 (omitted)", got)
+	}
+}
+
+func TestGPXConverter_Convert_DescriptionFromDp(t *testing.T) {
+	points := []models.Point{
+		{Tm: 1609459200, Lo: 139.7671, La: 35.6812, Al: "10.5", Dp: "start memo"},
+		{Tm: 1609459260, Lo: 139.7672, La: 35.6813, Al: "11.0"},
+		{Tm: 1609459320, Lo: 139.7673, La: 35.6814, Al: "11.5", Dp: "finish memo"},
+	}
+
+	g, err := New(nil).Convert(points, "Desc Track")
+	if err != nil {
+		t.Fatalf("Convert: %v", err)
+	}
+
+	trkPts := g.Trk[0].TrkSeg[0].TrkPt
+	if got, want := trkPts[0].Desc, "start memo"; got != want {
+		t.Errorf("trkpt[0].Desc = %q, want %q", got, want)
+	}
+	if got := trkPts[1].Desc; got != "" {
+		t.Errorf("trkpt[1].Desc = %q, want empty", got)
+	}
+	if got, want := trkPts[2].Desc, "finish memo"; got != want {
+		t.Errorf("trkpt[2].Desc = %q, want %q", got, want)
+	}
+
+	if len(g.Wpt) != 2 {
+		t.Fatalf("Wpt count = %d, want 2", len(g.Wpt))
+	}
+	if got, want := g.Wpt[0].Desc, "start memo"; got != want {
+		t.Errorf("Start waypoint Desc = %q, want %q", got, want)
+	}
+	if got, want := g.Wpt[1].Desc, "finish memo"; got != want {
+		t.Errorf("Goal waypoint Desc = %q, want %q", got, want)
+	}
+}
+
 func TestDefaultConfig(t *testing.T) {
 	config := DefaultConfig()
 

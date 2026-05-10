@@ -27,7 +27,7 @@ func main() {
 }
 
 func run() error {
-	trackName := flag.String("track-name", "Track", "Name for the GPS track")
+	trackName := flag.String("track-name", "", "Name for the GPS track (defaults to the recorded tl, or \"Track\" if absent)")
 	outputDir := flag.String("d", "", "Output directory (ignored if output file is specified)")
 	flag.StringVar(outputDir, "output-dir", "", "Output directory (ignored if output file is specified)")
 	timezoneOffsetStr := flag.String("timezone-offset", "+00:00", "Timezone offset for GPX timestamps (e.g., +09:00, -05:00)")
