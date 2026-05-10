@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<gpx version="1.1" creator="zweg - ZweiteGPS to GPX Converter" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 https://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>Single Point Test</name>
+    <time>2021-01-01T00:00:00Z</time>
+  </metadata>
+  <wpt lat="35.6812" lon="139.7454">
+    <ele>100.5</ele>
+    <time>2021-01-01T00:00:00Z</time>
+    <name>Start</name>
+  </wpt>
+  <wpt lat="35.6812" lon="139.7454">
+    <ele>100.5</ele>
+    <time>2021-01-01T00:00:00Z</time>
+    <name>Goal</name>
+  </wpt>
+  <trk>
+    <name>Single Point Test</name>
+    <trkseg>
+      <trkpt lat="35.6812" lon="139.7454">
+        <ele>100.5</ele>
+        <time>2021-01-01T00:00:00Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>

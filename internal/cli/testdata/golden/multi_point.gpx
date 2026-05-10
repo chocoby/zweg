@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<gpx version="1.1" creator="zweg - ZweiteGPS to GPX Converter" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 https://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>Tokyo Run</name>
+    <time>2021-01-01T00:00:00Z</time>
+  </metadata>
+  <wpt lat="35.6812" lon="139.7454">
+    <ele>100.5</ele>
+    <time>2021-01-01T00:00:00Z</time>
+    <name>Start</name>
+    <desc>start</desc>
+  </wpt>
+  <wpt lat="35.682" lon="139.747">
+    <ele>110</ele>
+    <time>2021-01-01T00:02:00Z</time>
+    <name>Goal</name>
+    <desc>end</desc>
+  </wpt>
+  <trk>
+    <name>Tokyo Run</name>
+    <trkseg>
+      <trkpt lat="35.6812" lon="139.7454">
+        <ele>100.5</ele>
+        <time>2021-01-01T00:00:00Z</time>
+        <desc>start</desc>
+        <hdop>5</hdop>
+        <vdop>3</vdop>
+      </trkpt>
+      <trkpt lat="35.6815" lon="139.746">
+        <ele>105</ele>
+        <time>2021-01-01T00:01:00Z</time>
+        <desc>middle</desc>
+        <hdop>4.5</hdop>
+        <vdop>2.5</vdop>
+      </trkpt>
+      <trkpt lat="35.682" lon="139.747">
+        <ele>110</ele>
+        <time>2021-01-01T00:02:00Z</time>
+        <desc>end</desc>
+        <hdop>4</hdop>
+        <vdop>2</vdop>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
