@@ -89,6 +89,9 @@ func (c *GPXConverter) Convert(points []models.Point, trackName string) (*gpx.GP
 			Lon:  point.Lo,
 			Ele:  alt,
 			Time: timestamp,
+			Desc: point.Dp,
+			HDOP: point.Ha,
+			VDOP: point.Va,
 		})
 	}
 
@@ -100,33 +103,29 @@ func (c *GPXConverter) Convert(points []models.Point, trackName string) (*gpx.GP
 
 // addWaypoints adds start and end waypoints to the GPX document.
 func (c *GPXConverter) addWaypoints(g *gpx.GPX, points []models.Point) error {
-	firstPoint := points[0]
-	firstAlt, err := firstPoint.Altitude()
+	start, err := waypointFrom(points[0], "Start")
 	if err != nil {
-		return fmt.Errorf("failed to parse start altitude: %w", err)
+		return err
 	}
-
-	g.Wpt = append(g.Wpt, &gpx.WptType{
-		Lat:  firstPoint.La,
-		Lon:  firstPoint.Lo,
-		Ele:  firstAlt,
-		Time: firstPoint.Timestamp(),
-		Name: "Start",
-	})
-
-	lastPoint := points[len(points)-1]
-	lastAlt, err := lastPoint.Altitude()
+	goal, err := waypointFrom(points[len(points)-1], "Goal")
 	if err != nil {
-		return fmt.Errorf("failed to parse end altitude: %w", err)
+		return err
 	}
-
-	g.Wpt = append(g.Wpt, &gpx.WptType{
-		Lat:  lastPoint.La,
-		Lon:  lastPoint.Lo,
-		Ele:  lastAlt,
-		Time: lastPoint.Timestamp(),
-		Name: "Goal",
-	})
-
+	g.Wpt = append(g.Wpt, start, goal)
 	return nil
+}
+
+func waypointFrom(p models.Point, name string) (*gpx.WptType, error) {
+	alt, err := p.Altitude()
+	if err != nil {
+		return nil, fmt.Errorf("waypoint %q altitude: %w", name, err)
+	}
+	return &gpx.WptType{
+		Lat:  p.La,
+		Lon:  p.Lo,
+		Ele:  alt,
+		Time: p.Timestamp(),
+		Name: name,
+		Desc: p.Dp,
+	}, nil
 }

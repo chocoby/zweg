@@ -147,6 +147,14 @@ func (c *CLI) Run(inputFile, outputFile, outputDir, trackName string, timezoneOf
 	}
 
 	if trackName == "" {
+		trackName = models.FirstTitle(points)
+	}
+	if trackName == "" {
+		if m, ok := models.FirstMeans(points); ok {
+			trackName = m.String()
+		}
+	}
+	if trackName == "" {
 		trackName = "Track"
 	}
 

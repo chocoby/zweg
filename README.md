@@ -37,7 +37,7 @@ zweg [options] <input.json> [output.gpx]
 
 ### Options
 
-- `--track-name <name>`: Name for the GPS track (default: "Track")
+- `--track-name <name>`: Name for the GPS track. When omitted, the fallback chain is used: `tl` (log title from JSON) → English `ms` name (Walking/Jogging/etc.) → `Track`.
 - `-d, --output-dir <directory>`: Output directory for the GPX file (ignored if output file is specified)
 - `--timezone-offset <offset>`: Timezone offset for auto-generated filename in ±HH:MM or ±HHMM format (default: "+00:00" UTC). **Note: This only affects the filename; GPX timestamps are always in UTC per GPX 1.1 specification.**
 - `--version`: Show version information
@@ -152,23 +152,104 @@ zweg --timezone-offset -05:00 data.json
 
 ## ZweiteGPS JSON Format Specification
 
-> **Note**: This format specification is based on reverse engineering and observation, not official documentation from ZweiteGPS.
+> The JSON format specification can be viewed inside the ZweiteGPS app.
 
-The input JSON file should be an array of GPS trackpoints with the following fields:
+The input JSON file is an array of GPS trackpoints with the following fields.
+Required fields must always be present; optional fields are populated only when the
+device or session provides them.
 
-| Field | Type   | Description                                      | Example      |
-| ----- | ------ | ------------------------------------------------ | ------------ |
-| `tm`  | number | Unix timestamp (seconds since epoch)             | 1609459200   |
-| `la`  | number | Latitude in decimal degrees                      | 35.658581    |
-| `lo`  | number | Longitude in decimal degrees                     | 139.745438   |
-| `al`  | string | Altitude in meters                               | "150.0"      |
-| `sp`  | string | Speed in meters per second                       | "1.0"        |
-| `co`  | number | Course/bearing in degrees (0-360, -1 if unknown) | 90           |
-| `th`  | number | True heading in degrees (0-360)                  | 85           |
-| `he`  | number | Heading in degrees (0-360)                       | 88           |
-| `ds`  | string | Distance in meters                               | "0.0"        |
-| `ms`  | number | Milliseconds (optional)                          | 0            |
-| `ow`  | string | Owner/device information (optional)              | "iPhone ..." |
+### Core fields
+
+| Field | Type   | Description                                      | Example    |
+| ----- | ------ | ------------------------------------------------ | ---------- |
+| `tm`  | number | Unix timestamp in seconds                        | 1609459200 |
+| `lo`  | number | Longitude in decimal degrees                     | 139.745438 |
+| `la`  | number | Latitude in decimal degrees                      | 35.658581  |
+| `al`  | string | Altitude in meters                               | "150.0"    |
+| `sp`  | string | Speed in meters per second                       | "1.0"      |
+| `co`  | number | Course / bearing in degrees (0-360, -1 unknown)  | 90         |
+| `th`  | number | True heading in degrees (0-360)                  | 85         |
+| `he`  | number | Magnetic heading in degrees (0-360)              | 88         |
+| `ds`  | string | Distance in meters                               | "0.0"      |
+
+### Optional metadata
+
+| Field | Type   | Description                                              | Example      |
+| ----- | ------ | -------------------------------------------------------- | ------------ |
+| `ms`  | number | Means of transportation (see table below) — used as track name fallback after `tl` | 1            |
+| `ow`  | string | Owner / device information                               | "iPhone ..." |
+| `tl`  | string | Log title — used as the default GPX track name           | "Tokyo Run"  |
+| `dp`  | string | Description / memo — copied to GPX `desc`                | "checkpoint" |
+
+#### Means (`ms`) values
+
+| Value | Means       |
+| ----- | ----------- |
+| 0     | Walking     |
+| 1     | Jogging     |
+| 2     | Bicycle     |
+| 3     | MotorCycle  |
+| 4     | AutoMobile  |
+| 5     | Train       |
+| 6     | Misc        |
+
+### Optional sensor data
+
+| Field | Type   | Description                                              |
+| ----- | ------ | -------------------------------------------------------- |
+| `ap`  | number | Atmospheric pressure                                     |
+| `ha`  | number | Horizontal accuracy in meters — copied to GPX `hdop`     |
+| `va`  | number | Vertical accuracy in meters — copied to GPX `vdop`       |
+| `xa`  | number | Heading accuracy                                         |
+| `ra`  | number | Relative altitude                                        |
+| `ws`  | number | Number of steps                                          |
+| `gx`  | number | Gravity acceleration X                                   |
+| `gy`  | number | Gravity acceleration Y                                   |
+| `gz`  | number | Gravity acceleration Z                                   |
+| `ax`  | number | User acceleration X                                      |
+| `ay`  | number | User acceleration Y                                      |
+| `az`  | number | User acceleration Z                                      |
+| `ep`  | number | Pitch angle                                              |
+| `er`  | number | Roll angle                                               |
+| `ey`  | number | Yaw angle                                                |
+| `pf`  | number | Peak frequency                                           |
+
+### Field mapping to GPX
+
+The following input fields are converted to GPX output:
+
+| ZweiteGPS field | GPX element                                                                |
+| --------------- | -------------------------------------------------------------------------- |
+| `tm`            | `<time>` on track points / waypoints and `<metadata><time>`                |
+| `la`            | `lat` attribute on track points / waypoints                                |
+| `lo`            | `lon` attribute on track points / waypoints                                |
+| `al`            | `<ele>`                                                                    |
+| `ha`            | `<hdop>`                                                                   |
+| `va`            | `<vdop>`                                                                   |
+| `dp`            | `<desc>` on track points and start/goal waypoints                          |
+| `tl`            | Track `<name>` (used when `--track-name` is not specified)                 |
+| `ms`            | Track `<name>` fallback when both `--track-name` and `tl` are absent       |
+
+### Unsupported fields
+
+The following fields are recognized in the input but **not** written to the GPX output yet. They are read for forward compatibility and silently ignored during conversion:
+
+| Field                | Description                          |
+| -------------------- | ------------------------------------ |
+| `sp`                 | Speed                                |
+| `co`                 | Course / bearing                     |
+| `th`                 | True heading                         |
+| `he`                 | Magnetic heading                     |
+| `ds`                 | Distance                             |
+| `ow`                 | Owner / device information           |
+| `ap`                 | Atmospheric pressure                 |
+| `ra`                 | Relative altitude                    |
+| `ws`                 | Number of steps                      |
+| `xa`                 | Heading accuracy                     |
+| `gx`, `gy`, `gz`     | Gravity acceleration (X / Y / Z)     |
+| `ax`, `ay`, `az`     | User acceleration (X / Y / Z)        |
+| `ep`, `er`, `ey`     | Pitch / Roll / Yaw angle             |
+| `pf`                 | Peak frequency                       |
 
 ### Example
 
@@ -185,7 +266,10 @@ The input JSON file should be an array of GPS trackpoints with the following fie
     "he": 88,
     "ds": "0.0",
     "ms": 0,
-    "ow": "iPhone [iPhone15,2 v18.0.1, ZweiteGPS, v48]"
+    "ow": "iPhone [iPhone15,2 v18.0.1, ZweiteGPS, v48]",
+    "tl": "Morning Run",
+    "ha": 5.0,
+    "va": 3.0
   }
 ]
 ```
