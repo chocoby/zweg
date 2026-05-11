@@ -66,23 +66,13 @@ type Point struct {
 	Pf float64 `json:"pf,omitempty"` // Peak frequency
 }
 
-// Timestamp returns the time.Time representation of the Unix timestamp in UTC.
-func (p *Point) Timestamp() time.Time {
-	return time.Unix(p.Tm, 0).UTC()
+// TimestampIn returns the time.Time representation of the Unix timestamp in the given location.
+// Callers should pass time.UTC for GPX-spec output, or a *time.Location built via
+// time.FixedZone for filename generation in a specific offset.
+func (p *Point) TimestampIn(loc *time.Location) time.Time {
+	return time.Unix(p.Tm, 0).In(loc)
 }
 
-// LocalTimestamp returns the time.Time representation of the Unix timestamp in local timezone.
-func (p *Point) LocalTimestamp() time.Time {
-	return time.Unix(p.Tm, 0).Local()
-}
-
-// TimestampWithOffset returns the time.Time representation of the Unix timestamp with the specified offset.
-// offsetSeconds is the timezone offset in seconds (e.g., +9 hours = 32400 seconds).
-func (p *Point) TimestampWithOffset(offsetSeconds int) time.Time {
-	return time.Unix(p.Tm, 0).In(time.FixedZone("", offsetSeconds))
-}
-
-// Altitude returns the altitude as a float64 value.
 func (p *Point) Altitude() (float64, error) {
 	if p.Al == "" {
 		return 0, nil
@@ -92,18 +82,6 @@ func (p *Point) Altitude() (float64, error) {
 		return 0, fmt.Errorf("failed to parse altitude %q: %w", p.Al, err)
 	}
 	return alt, nil
-}
-
-// Speed returns the speed as a float64 value.
-func (p *Point) Speed() (float64, error) {
-	if p.Sp == "" {
-		return 0, nil
-	}
-	speed, err := strconv.ParseFloat(p.Sp, 64)
-	if err != nil {
-		return 0, fmt.Errorf("failed to parse speed %q: %w", p.Sp, err)
-	}
-	return speed, nil
 }
 
 // FirstTitle returns the first non-empty Tl (log title) found in the slice.
@@ -126,16 +104,4 @@ func FirstMeans(points []Point) (Means, bool) {
 		}
 	}
 	return 0, false
-}
-
-// Distance returns the distance as a float64 value.
-func (p *Point) Distance() (float64, error) {
-	if p.Ds == "" {
-		return 0, nil
-	}
-	distance, err := strconv.ParseFloat(p.Ds, 64)
-	if err != nil {
-		return 0, fmt.Errorf("failed to parse distance %q: %w", p.Ds, err)
-	}
-	return distance, nil
 }

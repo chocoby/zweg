@@ -1,11 +1,18 @@
 package cli
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+// singlePointJSON returns a one-point ZweiteGPS payload with the given Unix timestamp.
+// Tests use it to avoid copy-pasting near-identical JSON fixtures.
+func singlePointJSON(tm int64) string {
+	return fmt.Sprintf(`[{"tm":%d,"lo":139.7454,"la":35.6812,"th":0,"sp":"0","co":0,"al":"0","he":0,"ds":"0"}]`, tm)
+}
 
 func TestCLI_Run_AutoGenerateOutputFilename(t *testing.T) {
 	tests := []struct {
@@ -16,23 +23,11 @@ func TestCLI_Run_AutoGenerateOutputFilename(t *testing.T) {
 		wantErr     bool
 	}{
 		{
-			name: "valid JSON with single point - auto-generate filename",
-			jsonContent: `[
-				{
-					"tm": 1729411200,
-					"lo": 139.7454,
-					"la": 35.6812,
-					"th": 0,
-					"sp": "0",
-					"co": 0,
-					"al": "0",
-					"he": 0,
-					"ds": "0"
-				}
-			]`,
-			inputFile:  "test.json",
-			wantPrefix: "20241020-",
-			wantErr:    false,
+			name:        "valid JSON with single point - auto-generate filename",
+			jsonContent: singlePointJSON(1729411200),
+			inputFile:   "test.json",
+			wantPrefix:  "20241020-",
+			wantErr:     false,
 		},
 		{
 			name: "valid JSON with multiple points - auto-generate filename",
@@ -144,19 +139,7 @@ func TestCLI_Run_ExplicitOutputFilename(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	// Create test JSON file
-	jsonContent := `[
-		{
-			"tm": 1609459200,
-			"lo": 139.7454,
-			"la": 35.6812,
-			"th": 0,
-			"sp": "0",
-			"co": 0,
-			"al": "0",
-			"he": 0,
-			"ds": "0"
-		}
-	]`
+	jsonContent := singlePointJSON(1609459200)
 	inputPath := filepath.Join(tmpDir, "test.json")
 	if err := os.WriteFile(inputPath, []byte(jsonContent), 0644); err != nil {
 		t.Fatalf("Failed to write test file: %v", err)
@@ -275,19 +258,7 @@ func TestCLI_Run_NonExistentFile(t *testing.T) {
 func TestCLI_Run_WithOutputDir(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	jsonContent := `[
-		{
-			"tm": 1729411200,
-			"lo": 139.7454,
-			"la": 35.6812,
-			"th": 0,
-			"sp": "0",
-			"co": 0,
-			"al": "0",
-			"he": 0,
-			"ds": "0"
-		}
-	]`
+	jsonContent := singlePointJSON(1729411200)
 	inputPath := filepath.Join(tmpDir, "test.json")
 	if err := os.WriteFile(inputPath, []byte(jsonContent), 0644); err != nil {
 		t.Fatalf("Failed to write test file: %v", err)
@@ -324,19 +295,7 @@ func TestCLI_Run_WithOutputDir(t *testing.T) {
 func TestCLI_Run_WithOutputDirAndOutputFile(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	jsonContent := `[
-		{
-			"tm": 1729411200,
-			"lo": 139.7454,
-			"la": 35.6812,
-			"th": 0,
-			"sp": "0",
-			"co": 0,
-			"al": "0",
-			"he": 0,
-			"ds": "0"
-		}
-	]`
+	jsonContent := singlePointJSON(1729411200)
 	inputPath := filepath.Join(tmpDir, "test.json")
 	if err := os.WriteFile(inputPath, []byte(jsonContent), 0644); err != nil {
 		t.Fatalf("Failed to write test file: %v", err)
@@ -368,19 +327,7 @@ func TestCLI_Run_WithOutputDirAndOutputFile(t *testing.T) {
 func TestCLI_Run_WithNestedOutputDir(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	jsonContent := `[
-		{
-			"tm": 1729411200,
-			"lo": 139.7454,
-			"la": 35.6812,
-			"th": 0,
-			"sp": "0",
-			"co": 0,
-			"al": "0",
-			"he": 0,
-			"ds": "0"
-		}
-	]`
+	jsonContent := singlePointJSON(1729411200)
 	inputPath := filepath.Join(tmpDir, "test.json")
 	if err := os.WriteFile(inputPath, []byte(jsonContent), 0644); err != nil {
 		t.Fatalf("Failed to write test file: %v", err)
@@ -550,19 +497,7 @@ func TestCLI_Run_WithTimezoneOffset(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tmpDir := t.TempDir()
 
-			jsonContent := `[
-				{
-					"tm": 1609459200,
-					"lo": 139.7454,
-					"la": 35.6812,
-					"th": 0,
-					"sp": "0",
-					"co": 0,
-					"al": "0",
-					"he": 0,
-					"ds": "0"
-				}
-			]`
+			jsonContent := singlePointJSON(1609459200)
 			inputPath := filepath.Join(tmpDir, "test.json")
 			if err := os.WriteFile(inputPath, []byte(jsonContent), 0644); err != nil {
 				t.Fatalf("Failed to write test file: %v", err)
@@ -715,19 +650,7 @@ func TestCLI_Run_PathTraversalPrevention(t *testing.T) {
 			// resolve inside the temp dir instead of polluting the source tree.
 			t.Chdir(tmpDir)
 
-			jsonContent := `[
-				{
-					"tm": 1729411200,
-					"lo": 139.7454,
-					"la": 35.6812,
-					"th": 0,
-					"sp": "0",
-					"co": 0,
-					"al": "0",
-					"he": 0,
-					"ds": "0"
-				}
-			]`
+			jsonContent := singlePointJSON(1729411200)
 			inputPath := filepath.Join(tmpDir, "test.json")
 			if err := os.WriteFile(inputPath, []byte(jsonContent), 0644); err != nil {
 				t.Fatalf("Failed to write test file: %v", err)

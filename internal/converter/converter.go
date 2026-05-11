@@ -2,6 +2,7 @@ package converter
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/chocoby/zweg/internal/models"
 	"github.com/twpayne/go-gpx"
@@ -58,7 +59,7 @@ func (c *GPXConverter) Convert(points []models.Point, trackName string) (*gpx.GP
 		Creator: c.config.Creator,
 	}
 
-	startTime := points[0].Timestamp()
+	startTime := points[0].TimestampIn(time.UTC)
 	g.Metadata = &gpx.MetadataType{
 		Name: trackName,
 		Time: startTime,
@@ -82,7 +83,7 @@ func (c *GPXConverter) Convert(points []models.Point, trackName string) (*gpx.GP
 			return nil, fmt.Errorf("failed to parse altitude at point %d: %w", i, err)
 		}
 
-		timestamp := point.Timestamp()
+		timestamp := point.TimestampIn(time.UTC)
 
 		segment.TrkPt = append(segment.TrkPt, &gpx.WptType{
 			Lat:  point.La,
@@ -124,7 +125,7 @@ func waypointFrom(p models.Point, name string) (*gpx.WptType, error) {
 		Lat:  p.La,
 		Lon:  p.Lo,
 		Ele:  alt,
-		Time: p.Timestamp(),
+		Time: p.TimestampIn(time.UTC),
 		Name: name,
 		Desc: p.Dp,
 	}, nil

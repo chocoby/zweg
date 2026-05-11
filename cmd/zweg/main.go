@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/chocoby/zweg/pkg/cli"
+	"github.com/chocoby/zweg/internal/cli"
 )
 
 const (
